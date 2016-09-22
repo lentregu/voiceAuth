@@ -75,8 +75,8 @@ func recognizeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func byteArrayToBase64(binaryByteArray []byte) string {
-	imgBase64Str := base64.StdEncoding.EncodeToString(binaryByteArray)
-	return imgBase64Str
+	base64 := base64.StdEncoding.EncodeToString(binaryByteArray)
+	return base64
 }
 
 func getParts(r *http.Request) [][]byte {
