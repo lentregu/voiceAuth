@@ -50,7 +50,10 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func createProfileHandler(w http.ResponseWriter, r *http.Request) {
 	parts := getParts(r)
-	locale := string(parts[0])
+	locale := string(parts["locale"])
+	// audio1 := parts["audio1"]
+	// audio2 := parts["audio2"]
+	// audio3 := parts["audio3"]
 
 	if locale == "en-US" {
 		response := createProfileResponse{}
@@ -64,10 +67,11 @@ func createProfileHandler(w http.ResponseWriter, r *http.Request) {
 func recognizeHandler(w http.ResponseWriter, r *http.Request) {
 	// frase + audio
 	parts := getParts(r)
-	passPhrase := string(parts[0])
+	passPhrase := string(parts["passPhrase"])
+	audio := parts["audio"]
 	response := recogniseHandlerResponse{}
 	if passPhrase == "hola" {
-		response.Audio = byteArrayToBase64(parts[1])
+		response.Audio = byteArrayToBase64(audio)
 		response.IdentificationProfileId = "a34e82f4-5530-4fb9-8b7c-ebf86697865b"
 		json.NewEncoder(w).Encode(response)
 	}
@@ -79,9 +83,9 @@ func byteArrayToBase64(binaryByteArray []byte) string {
 	return base64
 }
 
-func getParts(r *http.Request) [][]byte {
+func getParts(r *http.Request) map[string][]byte {
 	//4= 1 text part is locale + 3 audio wav
-	parts := make([][]byte, 4, 4)
+	parts := make(map[string][]byte)
 	mediaType, params, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil {
 		log.Fatal(err)
@@ -95,6 +99,7 @@ func getParts(r *http.Request) [][]byte {
 			if err == io.EOF {
 				return parts
 			}
+			fmt.Printf("FormName: %s", p.FormName())
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -102,7 +107,7 @@ func getParts(r *http.Request) [][]byte {
 			if err != nil {
 				log.Fatal(err)
 			}
-			parts[i] = part
+			parts[p.FormName()] = part
 		}
 	}
 	return parts
