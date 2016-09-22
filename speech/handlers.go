@@ -60,6 +60,7 @@ func createProfileHandler(w http.ResponseWriter, r *http.Request) {
 		response.IdentificationProfileId = "a34e82f4-5530-4fb9-8b7c-ebf86697865b"
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
+		return
 	}
 	http.NotFound(w, r)
 }
