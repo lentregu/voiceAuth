@@ -48,7 +48,8 @@ func main() {
 	extraParams := map[string]string{
 		"locale": "en-US",
 	}
-	request, err := newfileUploadRequest("http://localhost:8080/profiles", extraParams, "audio", "/Users/gfr/Dropbox/Personal/RingsABell/audios/left.wav")
+	//request, err := newfileUploadRequest("http://localhost:8080/profiles", extraParams, "audio", "/Users/gfr/Dropbox/Personal/RingsABell/audios/left.wav")
+	request, err := newfileUploadRequest("http://localhost:8080/profiles", extraParams, "audio", "/Users/gfr/Develop/Go/src/github.com/lentregu/voiceAuth/samples/left1.wav")
 	fmt.Println("--------------------------")
 	//fmt.Print(request)
 	fmt.Println("--------------------------")

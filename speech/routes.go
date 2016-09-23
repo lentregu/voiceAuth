@@ -32,4 +32,10 @@ var routes = Routes{
 		"/recognize",
 		recognizeHandler,
 	},
+	Route{
+		"passPhrases",
+		"GET",
+		"/passPhrases",
+		passPhrases,
+	},
 }

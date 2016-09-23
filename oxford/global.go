@@ -44,7 +44,7 @@ type oxfordError struct {
 }
 
 // Error interface
-func (err oxfordError) Error () string {
+func (err oxfordError) Error() string {
 	return err.Message
 }
 
@@ -52,7 +52,6 @@ func (err oxfordError) Error () string {
 type APIErrorResponse struct {
 	Err oxfordError `json:"error"`
 }
-
 
 // GetResource builds a resource
 func GetResource(apiType APIType, version string, resource string) string {
@@ -158,11 +157,11 @@ func createHTTPRequest(method HTTPMethod) createRequest {
 			req.Header.Add(k, v)
 		}
 
+		values := req.URL.Query()
 		for k, v := range queryParams {
-			req.Header.Add(k, v)
-			req.URL.Query().Add(k, v)
+			values.Add(k, v)
 		}
-
+		req.URL.RawQuery = values.Encode()
 		return req
 	}
 }

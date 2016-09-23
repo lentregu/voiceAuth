@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/lentregu/voiceauth/oxford"
 )
@@ -51,13 +52,27 @@ func index(w http.ResponseWriter, r *http.Request) {
 func createProfileHandler(w http.ResponseWriter, r *http.Request) {
 	parts := getParts(r)
 	locale := string(parts["locale"])
-	// audio1 := parts["audio1"]
-	// audio2 := parts["audio2"]
-	// audio3 := parts["audio3"]
+	audio1 := parts["audio1"]
+	audio2 := parts["audio2"]
+	audio3 := parts["audio3"]
 
-	if locale == "en-US" {
+	if locale != "en-US" {
+		http.NotFound(w, r)
+		return
+	}
+
+	id, err := speak.CreateProfile(locale)
+
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	id, err = enrollUser(id, audio1, audio2, audio3)
+
+	if err == nil {
 		response := createProfileResponse{}
-		response.IdentificationProfileId = "a34e82f4-5530-4fb9-8b7c-ebf86697865b"
+		response.IdentificationProfileId = id
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 		return
@@ -70,13 +85,41 @@ func recognizeHandler(w http.ResponseWriter, r *http.Request) {
 	parts := getParts(r)
 	passPhrase := string(parts["passPhrase"])
 	audio := parts["audio"]
+	userID := string(parts["userID"])
+
+	id, err := speak.Verify(userID, passPhrase, audio)
+
 	response := recogniseHandlerResponse{}
-	if passPhrase == "hola" {
+	if err == nil {
 		response.Audio = byteArrayToBase64(audio)
-		response.IdentificationProfileId = "a34e82f4-5530-4fb9-8b7c-ebf86697865b"
+		response.IdentificationProfileId = id
 		json.NewEncoder(w).Encode(response)
+		return
 	}
 	http.NotFound(w, r)
+}
+
+func passPhrases(w http.ResponseWriter, r *http.Request) {
+	locale := "en-US"
+	response, err := speak.PassList(locale)
+	if err == nil {
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+	http.NotFound(w, r)
+
+}
+
+//------------------------------------------------------------------------------
+
+func enrollUser(userID string, audios ...[]byte) (id string, err error) {
+	duration := time.Duration(5) * time.Second
+	for _, audio := range audios {
+		urlOP, _ := speak.UserEnrollment(userID, audio)
+		fmt.Print(urlOP)
+		time.Sleep(duration)
+	}
+	return userID, err
 }
 
 func byteArrayToBase64(binaryByteArray []byte) string {
